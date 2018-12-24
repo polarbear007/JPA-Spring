@@ -18,3 +18,9 @@
 		
 		整合dao 思路2：
 		直接声明一个 entityManager 对象，然后在这个变量上面添加  @PersistenceContext 注解
+		
+关于 dao 的整合，我们要明白思路1 是无法实现 spring 在 service 层的事务配置的。因为你自己 create出来的对象，需要自己管理，
+在dao方法结束前，你必须得 close()  entityManager 对象。 这会造成很大的问题，如果现在想不明白，或者比较模糊，可以去看一下
+jpa 最后的笔记。
+
+PersistenceContext 其实就是我们一直说的 一级缓存。

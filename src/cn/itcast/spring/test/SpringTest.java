@@ -20,7 +20,6 @@ public class SpringTest {
 		Student stu = new Student();
 		stu.setSname("eric");
 		stu.setAge(12);
-		
 		service.saveStudent(stu);
 	}
 }
