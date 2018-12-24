@@ -1,0 +1,20 @@
+演示JPA与 spring 进行整合：
+
+1、 整合以后JPA的核心配置文件全部并入 applicationContext.xml
+2、 整合的基本思路：
+		使用 LocalContainerEntityManagerFactoryBean 这个工厂BEAN 来生成 EntityManagerFactory 对象
+		
+		为此，我们需要向这个 工厂BEAN 注入原来 persistence.xml 里面的参数，包括：
+			PO类的位置-------> 使用整体包扫描，不需要一个个类导入
+			dataSource---> 由spring 容器生成
+			properties---> 原来 persistence.xml 里面的 properties 标签里面的所有参数
+							其实这些参数原本也不是jpa 的参数，而是hibernate 的参数
+			jpaVendorAdapter----> jpa 提供商提供的适配器，我们使用的是hibernate 提供商，所以使用
+									HibernateJpaVendorAdapter
+		
+		最终，我们希望在 dao 层拿到具体的 session 对象，也就是 entityManager 对象，这个对象可以由 
+		EntityManagerFactory 对象生成，所以我们的整合思路1：
+		向dao 层注入 EntityManagerFactory 对象，然后由这个对象拿到具体的 entityManager 对象，再执行数据库的操作
+		
+		整合dao 思路2：
+		直接声明一个 entityManager 对象，然后在这个变量上面添加  @PersistenceContext 注解

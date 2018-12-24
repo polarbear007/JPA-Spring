@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       					   http://www.springframework.org/schema/beans/spring-beans.xsd
+       					   http://www.springframework.org/schema/aop 
+       					   http://www.springframework.org/schema/aop/spring-aop.xsd
+       					   http://www.springframework.org/schema/tx 
+       					   http://www.springframework.org/schema/tx/spring-tx.xsd
+       					   http://www.springframework.org/schema/context 
+       					   http://www.springframework.org/schema/context/spring-context.xsd">
+	<!-- 配置连接池对象 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="com.mysql.cj.jdbc.Driver"/>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/jpa_spring?serverTimezone=Asia/Shanghai&amp;useSSL=false"/>
+		<property name="user" value="rose"/>
+		<property name="password" value="rose"/>
+	</bean>
+	
+	<!-- 配置entityManagerFactory, 使用LocalContainerEntityManagerFactoryBean 去生成这个对象  -->
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<!-- 注入 dataSource -->
+		<property name="dataSource" ref="dataSource"/>
+		<!-- 配置jpa 提供商提供的适配器。 可以配置一个内部  bean 标签 -->
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+		</property>
+		<!-- 配置扫描PO类的包，不需要一个一个类地引入了,直接引入整个包
+			创建entityManagerFactory 对象的时候，会去扫描指定包下的所有带有 @Entity 的类，建立与数据库表的映射关系
+		  -->
+		<property name="packagesToScan" value="cn.itcast.spring.jpa.entity"/>
+		<!-- 配置JPA的基本属性 -->
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- 配置事务管理器	 -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<!-- 需要引入entityManagerFactory 对象 -->
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
+	</bean>
+	
+	<!-- 配置支持事务的注解 
+		@transactional 
+	-->	
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<!-- 顺便配置 spring 的其他注解支持 -->
+	<!-- 扫描指定包下的  @service/ @repository/ @controller/ @component 注解
+		 还包括自动注入的那些注解  @autowired / @qualifier / @resource 这些
+		还包括 @PostConstruct / @preDestroy
+		还包括 @scope
+	 -->
+	<context:component-scan base-package="cn.itcast.spring.jpa.*" />
+	<context:annotation-config />
+	
+	<!-- 配置支持 aspectj 的注解
+		@aspect / @pointcut / @before / @around / @after-returning / @after-throwing / @after
+	 -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	
+	
+</beans>
